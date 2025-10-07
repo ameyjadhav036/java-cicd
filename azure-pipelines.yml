@@ -3,7 +3,7 @@ trigger:
 
 variables:
   jarName: 'demo-app-1.0-SNAPSHOT.jar'
-  jarPath: 'demo-app/target'
+  jarPath: 'demo-app\\target'
 
 stages:
   - stage: Build
@@ -18,8 +18,8 @@ stages:
               goals: 'clean package'
 
           - script: |
-              echo "✅ Build complete. JAR file generated:"
-              dir $(jarPath)
+              echo ✅ Build complete. JAR file generated:
+              dir demo-app\target
             displayName: 'List JAR file'
 
   - stage: Dev
@@ -30,9 +30,9 @@ stages:
         pool: default
         steps:
           - script: |
-              echo "🚀 Simulating deployment to Dev environment..."
+              echo 🚀 Simulating deployment to Dev environment...
               mkdir dev-deploy
-              copy $(jarPath)\$(jarName) dev-deploy\
+              copy demo-app\target\demo-app-1.0-SNAPSHOT.jar dev-deploy\
               dir dev-deploy
             displayName: 'Simulate Dev Deployment'
 
@@ -44,8 +44,8 @@ stages:
         pool: default
         steps:
           - script: |
-              echo "🚀 Simulating promotion to Test environment..."
+              echo 🚀 Simulating promotion to Test environment...
               mkdir test-deploy
-              copy dev-deploy\$(jarName) test-deploy\
+              copy dev-deploy\demo-app-1.0-SNAPSHOT.jar test-deploy\
               dir test-deploy
             displayName: 'Simulate Test Deployment'
