@@ -1,9 +1,6 @@
 trigger:
   - main
 
-pool:
-  vmImage: 'ubuntu-latest'
-
 variables:
   jarName: 'demo-app-1.0-SNAPSHOT.jar'
 
@@ -12,6 +9,7 @@ stages:
     displayName: 'Build Stage'
     jobs:
       - job: BuildJob
+        pool: default
         steps:
           - task: Maven@3
             inputs:
@@ -20,7 +18,7 @@ stages:
 
           - script: |
               echo "✅ Build complete. JAR file generated:"
-              ls target/*.jar
+              dir target
             displayName: 'List JAR file'
 
   - stage: Dev
@@ -28,13 +26,13 @@ stages:
     dependsOn: Build
     jobs:
       - job: DevDeploy
+        pool: default
         steps:
           - script: |
               echo "🚀 Simulating deployment to Dev environment..."
-              echo "Copying $(jarName) to Dev folder"
-              mkdir -p dev-deploy
-              cp target/$(jarName) dev-deploy/
-              ls dev-deploy/
+              mkdir dev-deploy
+              copy target\$(jarName) dev-deploy\
+              dir dev-deploy
             displayName: 'Simulate Dev Deployment'
 
   - stage: Test
@@ -42,11 +40,11 @@ stages:
     dependsOn: Dev
     jobs:
       - job: TestDeploy
+        pool: default
         steps:
           - script: |
               echo "🚀 Simulating promotion to Test environment..."
-              echo "Copying JAR from Dev to Test folder"
-              mkdir -p test-deploy
-              cp dev-deploy/$(jarName) test-deploy/
-              ls test-deploy/
+              mkdir test-deploy
+              copy dev-deploy\$(jarName) test-deploy\
+              dir test-deploy
             displayName: 'Simulate Test Deployment'
