@@ -1,0 +1,52 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  jarName: 'demo-app-1.0-SNAPSHOT.jar'
+
+stages:
+  - stage: Build
+    displayName: 'Build Stage'
+    jobs:
+      - job: BuildJob
+        steps:
+          - task: Maven@3
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'clean package'
+
+          - script: |
+              echo "✅ Build complete. JAR file generated:"
+              ls target/*.jar
+            displayName: 'List JAR file'
+
+  - stage: Dev
+    displayName: 'Deploy to Dev'
+    dependsOn: Build
+    jobs:
+      - job: DevDeploy
+        steps:
+          - script: |
+              echo "🚀 Simulating deployment to Dev environment..."
+              echo "Copying $(jarName) to Dev folder"
+              mkdir -p dev-deploy
+              cp target/$(jarName) dev-deploy/
+              ls dev-deploy/
+            displayName: 'Simulate Dev Deployment'
+
+  - stage: Test
+    displayName: 'Promote to Test (Staging)'
+    dependsOn: Dev
+    jobs:
+      - job: TestDeploy
+        steps:
+          - script: |
+              echo "🚀 Simulating promotion to Test environment..."
+              echo "Copying JAR from Dev to Test folder"
+              mkdir -p test-deploy
+              cp dev-deploy/$(jarName) test-deploy/
+              ls test-deploy/
+            displayName: 'Simulate Test Deployment'
