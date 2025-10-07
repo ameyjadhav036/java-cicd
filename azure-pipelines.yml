@@ -36,6 +36,11 @@ stages:
               dir dev-deploy
             displayName: 'Simulate Dev Deployment'
 
+          - script: |
+              echo ▶ Running the JAR file in Dev environment...
+              java -jar dev-deploy\demo-app-1.0-SNAPSHOT.jar
+            displayName: 'Run JAR in Dev'
+
   - stage: Test
     displayName: 'Promote to Test (Staging)'
     dependsOn: Dev
@@ -49,3 +54,8 @@ stages:
               copy dev-deploy\demo-app-1.0-SNAPSHOT.jar test-deploy\
               dir test-deploy
             displayName: 'Simulate Test Deployment'
+
+          - script: |
+              echo ▶ Running the JAR file in Test environment...
+              java -jar test-deploy\demo-app-1.0-SNAPSHOT.jar
+            displayName: 'Run JAR in Test'
