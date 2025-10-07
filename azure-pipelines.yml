@@ -3,6 +3,7 @@ trigger:
 
 variables:
   jarName: 'demo-app-1.0-SNAPSHOT.jar'
+  jarPath: 'demo-app/target'
 
 stages:
   - stage: Build
@@ -13,12 +14,12 @@ stages:
         steps:
           - task: Maven@3
             inputs:
-              mavenPomFile: 'pom.xml'
+              mavenPomFile: 'demo-app/pom.xml'
               goals: 'clean package'
 
           - script: |
               echo "✅ Build complete. JAR file generated:"
-              dir target
+              dir $(jarPath)
             displayName: 'List JAR file'
 
   - stage: Dev
@@ -31,7 +32,7 @@ stages:
           - script: |
               echo "🚀 Simulating deployment to Dev environment..."
               mkdir dev-deploy
-              copy target\$(jarName) dev-deploy\
+              copy $(jarPath)\$(jarName) dev-deploy\
               dir dev-deploy
             displayName: 'Simulate Dev Deployment'
 
