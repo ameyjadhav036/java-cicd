@@ -12,7 +12,7 @@ stages:
       - job: BuildJob
         pool: default
         steps:
-          - task: Maven@3
+          - task: Maven@4
             inputs:
               mavenPomFile: 'demo-app/pom.xml'
               goals: 'clean package'
@@ -21,6 +21,7 @@ stages:
               echo  Build complete. JAR file generated:
               dir demo-app\target
             displayName: 'List JAR file'
+######################################################################################
 
   - stage: Dev
     displayName: 'Deploy to Dev'
@@ -47,6 +48,7 @@ stages:
               artifact: 'demoJar'
               publishLocation: 'pipeline'
             displayName: 'Publish JAR as Artifact'
+######################################################################################
 
   - stage: Test
     displayName: 'Dev to Test'
