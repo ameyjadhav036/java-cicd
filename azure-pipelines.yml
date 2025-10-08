@@ -18,7 +18,7 @@ stages:
               goals: 'clean package'
 
           - script: |
-              echo ✅ Build complete. JAR file generated:
+              echo  Build complete. JAR file generated:
               dir demo-app\target
             displayName: 'List JAR file'
 
@@ -30,14 +30,14 @@ stages:
         pool: default
         steps:
           - script: |
-              echo 🚀 Simulating deployment to Dev environment...
+              echo  Simulate deployment to Dev environment
               mkdir dev-deploy
               copy demo-app\target\demo-app-1.0-SNAPSHOT.jar dev-deploy\
               dir dev-deploy
             displayName: 'Simulate Dev Deployment'
 
           - script: |
-              echo ▶ Running the JAR file in Dev environment...
+              echo  Run JAR file in Dev environment
               java -jar dev-deploy\demo-app-1.0-SNAPSHOT.jar
             displayName: 'Run JAR in Dev'
 
@@ -49,7 +49,7 @@ stages:
             displayName: 'Publish JAR as Artifact'
 
   - stage: Test
-    displayName: 'Promote to Test (Staging)'
+    displayName: 'Dev to Test'
     dependsOn: Dev
     jobs:
       - job: TestDeploy
@@ -62,6 +62,6 @@ stages:
             displayName: 'Download JAR Artifact'
 
           - script: |
-              echo ▶ Running the JAR file in Test environment...
+              echo  Run JAR file in Test environment
               java -jar test-deploy\demo-app-1.0-SNAPSHOT.jar
             displayName: 'Run JAR in Test'
