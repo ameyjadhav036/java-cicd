@@ -41,6 +41,13 @@ stages:
               java -jar dev-deploy\demo-app-1.0-SNAPSHOT.jar
             displayName: 'Run JAR in Dev'
 
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'dev-deploy'
+              artifact: 'demoJar'
+              publishLocation: 'pipeline'
+            displayName: 'Publish JAR as Artifact'
+
   - stage: Test
     displayName: 'Promote to Test (Staging)'
     dependsOn: Dev
@@ -48,12 +55,11 @@ stages:
       - job: TestDeploy
         pool: default
         steps:
-          - script: |
-              echo 🚀 Simulating promotion to Test environment...
-              mkdir test-deploy
-              copy dev-deploy\demo-app-1.0-SNAPSHOT.jar test-deploy\
-              dir test-deploy
-            displayName: 'Simulate Test Deployment'
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: 'demoJar'
+              path: 'test-deploy'
+            displayName: 'Download JAR Artifact'
 
           - script: |
               echo ▶ Running the JAR file in Test environment...
