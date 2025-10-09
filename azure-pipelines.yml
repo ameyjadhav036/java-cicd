@@ -1,88 +1,16 @@
-# trigger:
-#   - main
-
-# variables:
-#   jarName: 'demo-app-1.0-SNAPSHOT.jar'
-#   jarPath: 'demo-app\\target'
-
-# stages:
-#   - stage: Build
-#     displayName: 'Build Stage'
-#     jobs:
-#       - job: BuildJob
-#         pool: default
-#         steps:
-#           - task: Maven@4
-#             inputs:
-#               mavenPomFile: 'demo-app/pom.xml'
-#               goals: 'clean package'
-
-#           - script: |
-#               echo  Build complete. JAR file generated:
-#               dir demo-app\target
-#             displayName: 'List JAR file'
-# ######################################################################################
-
-#   - stage: Dev
-#     displayName: 'Deploy to Dev'
-#     dependsOn: Build
-#     jobs:
-#       - job: DevDeploy
-#         pool: default
-#         steps:
-#           - script: |
-#               echo  Simulate deployment to Dev environment
-#               mkdir dev-deploy
-#               copy demo-app\target\demo-app-1.0-SNAPSHOT.jar dev-deploy\
-#               dir dev-deploy
-#             displayName: 'Simulate Dev Deployment'
-
-#           - script: |
-#               echo  Run JAR file in Dev environment
-#               java -jar dev-deploy\demo-app-1.0-SNAPSHOT.jar
-#             displayName: 'Run JAR in Dev'
-
-#           - task: PublishPipelineArtifact@1
-#             inputs:
-#               targetPath: 'dev-deploy'
-#               artifact: 'demoJar'
-#               publishLocation: 'pipeline'
-#             displayName: 'Publish JAR as Artifact'
-# ######################################################################################
-
-#   - stage: Test
-#     displayName: 'Dev to Test'
-#     dependsOn: Dev
-#     jobs:
-#       - job: TestDeploy
-#         pool: default
-#         steps:
-#           - task: DownloadPipelineArtifact@2
-#             inputs:
-#               artifact: 'demoJar'
-#               path: 'test-deploy'
-#             displayName: 'Download JAR Artifact'
-
-#           - script: |
-#               echo  Run JAR file in Test environment
-#               java -jar test-deploy\demo-app-1.0-SNAPSHOT.jar
-#             displayName: 'Run JAR in Test'
-
-
 trigger:
   - main
 
 variables:
   jarName: 'demo-app-1.0-SNAPSHOT.jar'
-  jarPath: 'demo-app/target'
+  jarPath: 'demo-app\\target'
 
 stages:
   - stage: Build
     displayName: 'Build Stage'
     jobs:
       - job: BuildJob
-        pool:
-          name: Default
+        pool: default
         steps:
           - task: Maven@4
             inputs:
@@ -90,43 +18,115 @@ stages:
               goals: 'clean package'
 
           - script: |
-              echo Build complete. Listing JAR file:
-              ls demo-app/target
+              echo  Build complete. JAR file generated:
+              dir demo-app\target
             displayName: 'List JAR file'
+######################################################################################
+
+  - stage: Dev
+    displayName: 'Deploy to Dev'
+    dependsOn: Build
+    jobs:
+      - job: DevDeploy
+        pool: default
+        steps:
+          - script: |
+              echo  Simulate deployment to Dev environment
+              mkdir dev-deploy
+              copy demo-app\target\demo-app-1.0-SNAPSHOT.jar dev-deploy\
+              dir dev-deploy
+            displayName: 'Simulate Dev Deployment'
+
+          - script: |
+              echo  Run JAR file in Dev environment
+              java -jar dev-deploy\demo-app-1.0-SNAPSHOT.jar
+            displayName: 'Run JAR in Dev'
 
           - task: PublishPipelineArtifact@1
             inputs:
-              targetPath: 'demo-app/target'
+              targetPath: 'dev-deploy'
               artifact: 'demoJar'
               publishLocation: 'pipeline'
             displayName: 'Publish JAR as Artifact'
-
 ######################################################################################
 
-  - stage: DeployToLinuxVM
-    displayName: 'Deploy to Linux VM via SSH'
-    dependsOn: Build
+  - stage: Test
+    displayName: 'Dev to Test'
+    dependsOn: Dev
     jobs:
-      - job: SSHDeploy
-        pool:
-          name: Default
+      - job: TestDeploy
+        pool: default
         steps:
           - task: DownloadPipelineArtifact@2
             inputs:
               artifact: 'demoJar'
-              path: 'downloaded'
+              path: 'test-deploy'
             displayName: 'Download JAR Artifact'
 
-          - task: SSH@0
-            inputs:
-              sshEndpoint: 'LinuxVMConnection'
-              runOptions: 'inline'
-              inline: |
-                echo "Creating app directory on VM..."
-                mkdir -p /home/azureuser/demo-app
-                echo "Copying JAR file to VM..."
-                # You can't use SCP directly in this task, so we simulate deployment
-                # If you need actual file transfer, use a custom script or install SCP
-                echo "Running JAR file on VM..."
-                java -jar /home/azureuser/demo-app/demo-app-1.0-SNAPSHOT.jar
-            displayName: 'Deploy and Run JAR on Linux VM'
+          - script: |
+              echo  Run JAR file in Test environment
+              java -jar test-deploy\demo-app-1.0-SNAPSHOT.jar
+            displayName: 'Run JAR in Test'
+
+
+# trigger:
+#   - main
+
+# variables:
+#   jarName: 'demo-app-1.0-SNAPSHOT.jar'
+#   jarPath: 'demo-app/target'
+
+# stages:
+#   - stage: Build
+#     displayName: 'Build Stage'
+#     jobs:
+#       - job: BuildJob
+#         pool:
+#           name: Default
+#         steps:
+#           - task: Maven@4
+#             inputs:
+#               mavenPomFile: 'demo-app/pom.xml'
+#               goals: 'clean package'
+
+#           - script: |
+#               echo Build complete. Listing JAR file:
+#               ls demo-app/target
+#             displayName: 'List JAR file'
+
+#           - task: PublishPipelineArtifact@1
+#             inputs:
+#               targetPath: 'demo-app/target'
+#               artifact: 'demoJar'
+#               publishLocation: 'pipeline'
+#             displayName: 'Publish JAR as Artifact'
+
+# ######################################################################################
+
+#   - stage: DeployToLinuxVM
+#     displayName: 'Deploy to Linux VM via SSH'
+#     dependsOn: Build
+#     jobs:
+#       - job: SSHDeploy
+#         pool:
+#           name: Default
+#         steps:
+#           - task: DownloadPipelineArtifact@2
+#             inputs:
+#               artifact: 'demoJar'
+#               path: 'downloaded'
+#             displayName: 'Download JAR Artifact'
+
+#           - task: SSH@0
+#             inputs:
+#               sshEndpoint: 'LinuxVMConnection'
+#               runOptions: 'inline'
+#               inline: |
+#                 echo "Creating app directory on VM..."
+#                 mkdir -p /home/azureuser/demo-app
+#                 echo "Copying JAR file to VM..."
+#                 # You can't use SCP directly in this task, so we simulate deployment
+#                 # If you need actual file transfer, use a custom script or install SCP
+#                 echo "Running JAR file on VM..."
+#                 java -jar /home/azureuser/demo-app/demo-app-1.0-SNAPSHOT.jar
+#             displayName: 'Deploy and Run JAR on Linux VM'
