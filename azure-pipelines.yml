@@ -21,7 +21,7 @@ stages:
               echo  Build complete. JAR file generated:
               dir demo-app\target
             displayName: 'List JAR file'
-######################################################################################
+#######################################################################################
 
   - stage: Dev
     displayName: 'Deploy to Dev'
